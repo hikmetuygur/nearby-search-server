@@ -9,5 +9,5 @@ import java.util.Optional;
 
 @Repository
 public interface PlaceRepository extends JpaRepository<Place, String> {
-    List<Place> findByLatitudeAndLongitudeAndRadius(double latitude, double longitude, double radius);
+    List<Place> findAllByIdIn(List<String> ids);
 }
