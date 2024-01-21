@@ -116,5 +116,4 @@ public class PlaceService {
         }
         return Collections.emptyList();
     }
-
 }
