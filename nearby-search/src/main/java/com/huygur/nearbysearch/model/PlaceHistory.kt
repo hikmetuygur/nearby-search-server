@@ -16,6 +16,6 @@ data class PlaceHistory(
 
     val radius: Double,
 
-    @Column(length = 2048)
+    @Column(columnDefinition = "TEXT")
     val placeIds: String
 )
