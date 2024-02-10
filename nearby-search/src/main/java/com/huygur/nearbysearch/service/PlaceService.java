@@ -42,18 +42,14 @@ public class PlaceService {
 
     public List<Place> getPlaces(double latitude, double longitude, double radius) {
 
-        var placeHistory = placeHistoryRepository.findByLatitudeAndLongitudeAndRadius(latitude, longitude, radius);
+        return placeHistoryRepository
+                .findByLatitudeAndLongitudeAndRadius(latitude, longitude, radius)
+                .map(placeHistory -> placeRepository.findAllByIdIn(Arrays.asList(placeHistory.getPlaceIds().split(","))))
+                .orElseGet(() -> searchNearby(latitude, longitude, radius));
 
-        if (placeHistory.isPresent()) {
-            String placeIdsString = placeHistory.get().getPlaceIds();
-            List<String> placeIds = Arrays.asList(placeIdsString.split(","));
-            return placeRepository.findAllByIdIn(placeIds);
-        }
-
-        return searchNearby(latitude, longitude, radius);
     }
 
-    public List<Place> searchNearby(double latitude, double longitude, @NotNull double radius) {
+    public List<Place> searchNearby(double latitude, double longitude, double radius) {
         try {
             // Set request body
             PlaceAPIRequest requestBody = new PlaceAPIRequest(
@@ -94,6 +90,7 @@ public class PlaceService {
                                 )
                         )
                         .collect(Collectors.toList());
+
                 placeRepository.saveAll(places);
 
                 var placeIds = places.stream().map(Place::getId).collect(Collectors.joining(","));
