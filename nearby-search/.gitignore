@@ -37,3 +37,4 @@ spring-boot-starter-*.jar
 
 # Application Properties
 src/main/resources/application.properties
+src/main/resources/application.yml
