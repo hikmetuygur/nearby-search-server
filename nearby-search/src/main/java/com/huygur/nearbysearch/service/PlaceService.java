@@ -27,16 +27,16 @@ public class PlaceService {
     @Value("${google.api.url}")
     private String apiUrl;
 
-    @Value("${google.api.key}")
-    private String apiKey;
-
     private final PlaceHistoryRepository placeHistoryRepository;
 
     private final PlaceRepository placeRepository;
 
-    public PlaceService(PlaceHistoryRepository placeHistoryRepository, PlaceRepository placeRepository) {
+    private final RestTemplate restTemplate;
+
+    public PlaceService(PlaceHistoryRepository placeHistoryRepository, PlaceRepository placeRepository, RestTemplate restTemplate) {
         this.placeHistoryRepository = placeHistoryRepository;
         this.placeRepository = placeRepository;
+        this.restTemplate = restTemplate;
     }
 
 
@@ -53,18 +53,13 @@ public class PlaceService {
         try {
             // Set request body
             PlaceAPIRequest requestBody = new PlaceAPIRequest(
-                    new PlaceAPIRequest.LocationRestriction(new Circle(new Center(latitude, longitude), radius)));
+                    new PlaceAPIRequest.LocationRestriction(
+                            new Circle(
+                                    new Center(latitude, longitude), radius)));
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Content-Type", "application/json");
-            headers.set("X-Goog-Api-Key", apiKey);
-            headers.set("X-Goog-FieldMask", "places.displayName,places.location,places.id");
 
             // Create HttpEntity with headers and body
-            HttpEntity<PlaceAPIRequest> requestEntity = new HttpEntity<>(requestBody, headers);
-
-            // Create RestTemplate
-            RestTemplate restTemplate = new RestTemplate();
+            HttpEntity<PlaceAPIRequest> requestEntity = new HttpEntity<>(requestBody);
 
             // Make the HTTP request with  restTemplate
             ResponseEntity<PlaceAPI> responseEntity = restTemplate
@@ -102,6 +97,7 @@ public class PlaceService {
                                 placeIds
                         )
                 );
+
                 return places;
             } else {
                 System.err.println("Error while calling Google Places API. Status code: "
